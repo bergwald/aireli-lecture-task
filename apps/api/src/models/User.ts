@@ -1,11 +1,22 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import path from 'path';
 import bcrypt from 'bcryptjs';
 import { PlatformUser } from "@enterprise-commerce/core/platform/types"
 import openDb from '../db/db';
 
-export const createUser = () => {} // Implement the createUser function
+export const createUser = async (user: PlatformUser): Promise<Pick<PlatformUser, 'id'> | null> => {
+  const db = await openDb();
+
+  try {
+    const result = await db.run(
+      'INSERT INTO users (email, password) VALUES (?, ?)',
+      user.email,
+      user.password
+    );
+
+    return { id: String(result.lastID) };
+  } finally {
+    await db.close();
+  }
+};
 
 export const findUserById = async (id: string): Promise<PlatformUser | null> => {
   const db = await openDb();
